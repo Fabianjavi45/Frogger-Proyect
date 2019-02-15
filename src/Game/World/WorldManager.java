@@ -22,7 +22,7 @@ import java.util.Random;
  * 				How? Figure it out.
  */
 public class WorldManager {
-
+	boolean YLilly;
 	private ArrayList<BaseArea> AreasAvailables;			// Lake, empty and grass area (NOTE: The empty tile is just the "sand" tile. Ik, weird name.)
 	private ArrayList<StaticBase> StaticEntitiesAvailables;	// Has the hazards: LillyPad, Log, Tree, and Turtle.
 
@@ -60,12 +60,15 @@ public class WorldManager {
         StaticEntitiesAvailables.add(new Log(handler, 0, 0));
         StaticEntitiesAvailables.add(new Tree(handler));
         StaticEntitiesAvailables.add(new Turtle(handler, 0, 0));
+        
+        
 
         SpawnedAreas = new ArrayList<>();
         SpawnedHazards = new ArrayList<>();
         
         player = new Player(handler);       
-
+        
+        
         gridWidth = handler.getWidth()/64;
         gridHeight = handler.getHeight()/64;
         movementSpeed = 1;
@@ -75,13 +78,27 @@ public class WorldManager {
          * 	Spawn Areas in Map (2 extra areas spawned off screen)
          *  To understand this, go down to randomArea(int yPosition) 
          */
+        int Grass=0;													//Added For loop to spawn at least two grass areas at spawn
         for(int i=0; i<gridHeight+2; i++) {
-        	SpawnedAreas.add(randomArea((-2+i)*64));
-        }
         	
-        player.setX((gridWidth/2)*64);
-        player.setY((gridHeight-3)*64);
+        	if(Grass<11) { 									
+        		SpawnedAreas.add(randomArea((-2+i)*64));
+        		Grass++;
+        	}
+        	else {
+        		SpawnedAreas.add(new GrassArea(handler,(-2+i)*64));
+        	}
+        }
+    
+        
+	   player.setX((gridWidth/2)*64);
+       player.setY((gridHeight-2)*64);
 
+    	
+       		
+       	
+       	
+       	
         // Not used atm.
         grid = new ID[gridWidth][gridHeight];
         for (int x = 0; x < gridWidth; x++) {
@@ -90,6 +107,9 @@ public class WorldManager {
             }
         }
     }
+    
+    
+    
 
 	public void tick() {
 		
@@ -167,7 +187,8 @@ public class WorldManager {
 			// Moves Log or Turtle to the right
 			if (SpawnedHazards.get(i) instanceof Log || SpawnedHazards.get(i) instanceof Turtle) {
 				SpawnedHazards.get(i).setX(SpawnedHazards.get(i).getX() + 1);
-
+			
+			
 				// Verifies the hazards Rectangles aren't null and
 				// If the player Rectangle intersects with the Log or Turtle Rectangle, then
 				// move player to the right.
@@ -210,10 +231,11 @@ public class WorldManager {
     	Random rand = new Random();
     	
     	// From the AreasAvailable, get me any random one.
-    	BaseArea randomArea = AreasAvailables.get(rand.nextInt(AreasAvailables.size())); 
+    	BaseArea randomArea = AreasAvailables.get(rand.nextInt(AreasAvailables.size()));
+    	
     	
     	if(randomArea instanceof GrassArea) {
-    		randomArea = new GrassArea(handler, yPosition);
+    		randomArea = new GrassArea(handler, yPosition); 
     	}
     	else if(randomArea instanceof WaterArea) {
     		randomArea = new WaterArea(handler, yPosition);
@@ -228,24 +250,54 @@ public class WorldManager {
 	/*
 	 * Given a yPositionm this method will add a new hazard to the SpawnedHazards ArrayList
 	 */
+	
+	//Added a for loop to spawn more than 1 Lillypad in same Y level and initialized public boolean for it not to spawn lillypads consecutively
 	private void SpawnHazard(int yPosition) {
 		Random rand = new Random();
 		int randInt;
 		int choice = rand.nextInt(7);
-		// Chooses between Log or Lillypad
+		int lillyloop= rand.nextInt(5) + 1;
+		int turtOrLog= rand.nextInt(1);
 		if (choice <=2) {
 			randInt = 64 * rand.nextInt(4);
 			SpawnedHazards.add(new Log(handler, randInt, yPosition));
+			YLilly=false;
+			
 		}
-		else if (choice >=5){
-			randInt = 64 * rand.nextInt(9);
-			SpawnedHazards.add(new LillyPad(handler, randInt, yPosition));
-		}
-		else {
+		else if(choice>=5){ 
 			randInt = 64 * rand.nextInt(3);
 			SpawnedHazards.add(new Turtle(handler, randInt, yPosition));
+			YLilly=false;
 		}
-			
+		else {
+			if(YLilly) {
+				if(turtOrLog==1) {
+					randInt = 64 * rand.nextInt(4);
+					SpawnedHazards.add(new Log(handler, randInt, yPosition));
+					YLilly=false;
+				}
+				else {
+					randInt = 64 * rand.nextInt(3);
+					SpawnedHazards.add(new Turtle(handler, randInt, yPosition));
+					YLilly=false;
+				}
+				
+			}
+			else {
+			for(int i=0;i<lillyloop;i++) {
+				randInt = 64 * rand.nextInt(9);
+				SpawnedHazards.add(new LillyPad(handler, randInt, yPosition));
+				}
+			YLilly=true;
+			}
+		}
+		
 	}
-    
 }
+	
+
+			
+	
+
+	
+
