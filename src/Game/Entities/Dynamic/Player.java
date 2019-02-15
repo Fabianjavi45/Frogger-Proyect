@@ -228,5 +228,8 @@ public class Player extends EntityBase {
     public Rectangle getPlayerCollision() {
         return player;
     }
-
+    public String getFacing(){   //added
+        
+	      return facing;
+                      }
 }

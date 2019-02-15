@@ -22,7 +22,7 @@ import java.util.Random;
  * 				How? Figure it out.
  */
 public class WorldManager {
-	boolean YLilly;
+
 	private ArrayList<BaseArea> AreasAvailables;			// Lake, empty and grass area (NOTE: The empty tile is just the "sand" tile. Ik, weird name.)
 	private ArrayList<StaticBase> StaticEntitiesAvailables;	// Has the hazards: LillyPad, Log, Tree, and Turtle.
 
@@ -31,6 +31,7 @@ public class WorldManager {
     
     Long time;
     Boolean reset = true;
+    Boolean YLilly = false;
     
     Handler handler;
 
@@ -43,7 +44,8 @@ public class WorldManager {
 
 	private ID[][] grid;									
 	private int gridWidth,gridHeight;						// Size of the grid. 
-	private int movementSpeed;								// Movement of the tiles going downwards.
+	private int movementSpeed;		// Movement of the tiles going downwards.
+	private int pushB= 15;
     
 
     public WorldManager(Handler handler) {
@@ -58,47 +60,41 @@ public class WorldManager {
 
         StaticEntitiesAvailables.add(new LillyPad(handler, 0, 0));
         StaticEntitiesAvailables.add(new Log(handler, 0, 0));
-        StaticEntitiesAvailables.add(new Tree(handler));
+        StaticEntitiesAvailables.add(new Tree(handler,0,0));
         StaticEntitiesAvailables.add(new Turtle(handler, 0, 0));
-        
-        
 
         SpawnedAreas = new ArrayList<>();
         SpawnedHazards = new ArrayList<>();
         
         player = new Player(handler);       
-        
-        
+
         gridWidth = handler.getWidth()/64;
         gridHeight = handler.getHeight()/64;
         movementSpeed = 1;
-        // movementSpeed = 20; I dare you.
+        
+        //movementSpeed = 20; //I dare you.
         
         /* 
          * 	Spawn Areas in Map (2 extra areas spawned off screen)
          *  To understand this, go down to randomArea(int yPosition) 
          */
-        int Grass=0;													//Added For loop to spawn at least two grass areas at spawn
-        for(int i=0; i<gridHeight+2; i++) {
-        	
-        	if(Grass<11) { 									
-        		SpawnedAreas.add(randomArea((-2+i)*64));
-        		Grass++;
-        	}
-        	else {
-        		SpawnedAreas.add(new GrassArea(handler,(-2+i)*64));
-        	}
-        }
-    
+     
         
-	   player.setX((gridWidth/2)*64);
-       player.setY((gridHeight-2)*64);
+        
+        for(int i=0; i<gridHeight+2; i++) {
+        	SpawnedAreas.add(randomArea((-2+i)*64));
+        }
+      	
+        player.setX((gridWidth/2)*64);
+        player.setY((gridHeight-3)*64);
+        
+        for (int j = 0; j < SpawnedAreas.size(); j++) {
+        	if(player.getY()==SpawnedAreas.get(j).getYPosition() && SpawnedAreas.get(j) instanceof WaterArea) {
+        		player.setY(player.getY()+64);
+        	}
+			
+		}
 
-    	
-       		
-       	
-       	
-       	
         // Not used atm.
         grid = new ID[gridWidth][gridHeight];
         for (int x = 0; x < gridWidth; x++) {
@@ -108,10 +104,43 @@ public class WorldManager {
         }
     }
     
-    
-    
 
 	public void tick() {
+		
+		//grid range jere
+		if(player.getX()-1<=0) {
+			player.setX(player.getX()+10);
+		}
+		if(player.getX()+1>=576) {
+			player.setX(player.getX()-10);
+		}
+		if(player.getY()-1<=10) {
+			player.setY(player.getY()+25);
+		}
+		if(player.getY()+1>=768) {      // this is added while the game over state is being created-jere
+			player.setY(player.getY()-10);}
+
+
+		
+		
+	
+		
+		
+		
+		if(this.player.getY()> this.handler.getHeight()) {
+			movementSpeed=0;
+		}
+		if(this.player.getY()<= this.handler.getHeight()) {
+			movementSpeed=1;
+		}
+		if(this.player.getX()> this.handler.getWidth()) {
+			this.player.setX(this.player.getX()-40);
+		}
+		if(this.player.getX()<0) {
+			this.player.setX(this.player.getX()+20);
+		}
+		
+		
 		
 		if(this.handler.getKeyManager().keyJustPressed(this.handler.getKeyManager().num[2])) {
 			this.object2.word = this.object2.word + this.handler.getKeyManager().str[1];
@@ -183,26 +212,69 @@ public class WorldManager {
 
 			// Moves hazard down
 			SpawnedHazards.get(i).setY(SpawnedHazards.get(i).getY() + movementSpeed);
+			
+			if(SpawnedHazards.get(i) instanceof Tree)	{
+				
+				if(SpawnedHazards.get(i).GetCollision() != null
+						&&  player.getPlayerCollision().intersects(SpawnedHazards.get(i).GetCollision())) {
+					
+					String facing= player.getFacing();
+					
+					switch(facing) {
+					case "UP": player.setY(player.getY()+15);
+						break;
+					case "DOWN": player.setY(player.getY()-15);
+					   break;
+					case "LEFT": player.setX(player.getX()+15);
+					   break;
+					case "RIGHT": player.setX(player.getX()-15);
+					   break;
+					default: break;	
+					}
+					
+				}
+			}
+			
+			
+			
+			//Log Right to left
+			if (SpawnedHazards.get(i) instanceof Log) {
+				SpawnedHazards.get(i).setX(SpawnedHazards.get(i).getX() +1);
+				
+				
 
-			// Moves Log or Turtle to the right
-			if (SpawnedHazards.get(i) instanceof Log || SpawnedHazards.get(i) instanceof Turtle) {
-				SpawnedHazards.get(i).setX(SpawnedHazards.get(i).getX() + 1);
-			
-			
+				
+				
 				// Verifies the hazards Rectangles aren't null and
 				// If the player Rectangle intersects with the Log or Turtle Rectangle, then
 				// move player to the right.
 				if (SpawnedHazards.get(i).GetCollision() != null
 						&& player.getPlayerCollision().intersects(SpawnedHazards.get(i).GetCollision())) {
-					player.setX(player.getX() + 1);
+					player.setX(player.getX() +1);
 				}
 
 			}
+			
 
+			// Moves Turtle to the left
+			if (SpawnedHazards.get(i) instanceof Turtle) {
+				SpawnedHazards.get(i).setX(SpawnedHazards.get(i).getX() -1);
+	
+				// Verifies the hazards Rectangles aren't null and
+				// If the player Rectangle intersects with the Log or Turtle Rectangle, then
+				// move player to the right.
+				if (SpawnedHazards.get(i).GetCollision() != null
+						&& player.getPlayerCollision().intersects(SpawnedHazards.get(i).GetCollision())) {
+					player.setX(player.getX() - 1);
+				}
+
+			}
 			// if hazard has passed the screen height, then remove this hazard.
 			if (SpawnedHazards.get(i).getY() > handler.getHeight()) {
 				SpawnedHazards.remove(i);
 			}
+			
+		
 		}
 	}
 	
@@ -229,13 +301,15 @@ public class WorldManager {
      */
 	private BaseArea randomArea(int yPosition) {
     	Random rand = new Random();
-    	
     	// From the AreasAvailable, get me any random one.
-    	BaseArea randomArea = AreasAvailables.get(rand.nextInt(AreasAvailables.size()));
-    	
+    	BaseArea randomArea = AreasAvailables.get(rand.nextInt(AreasAvailables.size())); 
     	
     	if(randomArea instanceof GrassArea) {
-    		randomArea = new GrassArea(handler, yPosition); 
+    		randomArea = new GrassArea(handler, yPosition);
+    		SpawnedHazards.add(new Tree(handler,64 *rand.nextInt(9), yPosition));
+    		
+    		
+    		
     	}
     	else if(randomArea instanceof WaterArea) {
     		randomArea = new WaterArea(handler, yPosition);
@@ -243,6 +317,7 @@ public class WorldManager {
     	}
     	else {
     		randomArea = new EmptyArea(handler, yPosition);
+    		//SpawnedHazards.add(new Tree(handler,64 *rand.nextInt(9), yPosition));
     	}
     	return randomArea;
     }
@@ -250,8 +325,6 @@ public class WorldManager {
 	/*
 	 * Given a yPositionm this method will add a new hazard to the SpawnedHazards ArrayList
 	 */
-	
-	//Added a for loop to spawn more than 1 Lillypad in same Y level and initialized public boolean for it not to spawn lillypads consecutively
 	private void SpawnHazard(int yPosition) {
 		Random rand = new Random();
 		int randInt;
@@ -293,11 +366,5 @@ public class WorldManager {
 		}
 		
 	}
+    
 }
-	
-
-			
-	
-
-	
-
