@@ -18,7 +18,7 @@ private Rectangle tree;
 	@Override
 	public void render(Graphics g) {
 		g.drawImage(Images.tree, this.getX(),this. getY(),64,64,null);//added
-        tree= new Rectangle(this.getX(),this.getY()+5,64,55);//added jere
+        tree= new Rectangle(this.getX(),this.getY()+5,64,55);//added here
 
 	}
 	
