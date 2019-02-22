@@ -22,7 +22,7 @@ import java.util.Random;
  * 				How? Figure it out.
  */
 public class WorldManager {
-	boolean YLilly;
+	boolean YLilly;											// boolean to prevent LillyPads from Spawning consecutively.
 	private ArrayList<BaseArea> AreasAvailables;			// Lake, empty and grass area (NOTE: The empty tile is just the "sand" tile. Ik, weird name.)
 	private ArrayList<StaticBase> StaticEntitiesAvailables;	// Has the hazards: LillyPad, Log, Tree, and Turtle.
 
@@ -31,7 +31,7 @@ public class WorldManager {
 
 	Long time;
 	Boolean reset = true;
-									// boolean to prevent LillyPads from Spawning consecutively.
+
 
 	Handler handler;
 
@@ -234,17 +234,9 @@ public class WorldManager {
 
 				}
 			}
-
-
-
-			//Log Right to left
+			//Log left to right
 			if (SpawnedHazards.get(i) instanceof Log) {
 				SpawnedHazards.get(i).setX(SpawnedHazards.get(i).getX() +1);
-
-
-
-
-
 				// Verifies the hazards Rectangles aren't null and
 				// If the player Rectangle intersects with the Log or Turtle Rectangle, then
 				// move player to the right.
@@ -252,9 +244,7 @@ public class WorldManager {
 						&& player.getPlayerCollision().intersects(SpawnedHazards.get(i).GetCollision())) {
 					player.setX(player.getX() +1);
 				}
-
 			}
-
 
 			// Moves Turtle to the left
 			if (SpawnedHazards.get(i) instanceof Turtle) {
@@ -267,14 +257,14 @@ public class WorldManager {
 						&& player.getPlayerCollision().intersects(SpawnedHazards.get(i).GetCollision())) {
 					player.setX(player.getX() - 1);
 				}
-
 			}
+
 			// if hazard has passed the screen height, then remove this hazard.
 			if (SpawnedHazards.get(i).getY() > handler.getHeight()) {
 				SpawnedHazards.remove(i);
 			}
-
-
+			
+			
 		}
 	}
 
@@ -301,13 +291,15 @@ public class WorldManager {
 	 */
 	private BaseArea randomArea(int yPosition) {
 		Random rand = new Random();
+		int treeloop= rand.nextInt(4)+1;			//Enables the spawn of multiple trees in the same yPosition
 		// From the AreasAvailable, get me any random one.
 		BaseArea randomArea = AreasAvailables.get(rand.nextInt(AreasAvailables.size())); 
 
 		if(randomArea instanceof GrassArea) {
 			randomArea = new GrassArea(handler, yPosition);
+			for(int i=0;i<treeloop;i++) {
 			SpawnedHazards.add(new Tree(handler,64 *rand.nextInt(9), yPosition));
-
+			}
 
 
 		}
@@ -329,18 +321,25 @@ public class WorldManager {
 		Random rand = new Random();
 		int randInt;
 		int choice = rand.nextInt(7);
-		int lillyloop= rand.nextInt(5) + 1;
-		int turtOrLog= rand.nextInt(1);
-		if (choice <=2) {
-			randInt = 64 * rand.nextInt(4);
-			SpawnedHazards.add(new Log(handler, randInt, yPosition));
-			YLilly=false;
+		int lillyLoop= rand.nextInt(8) + 1;		//Variable to spawn more than one LillyPad per YPosition
+		int logLoop= rand.nextInt(4) + 1;		
+		int turtOrLog= rand.nextInt(1);			//Variable to choose if to spawn Log or Turtle
+		int notOverlap=0;						//Prevents overlapping of LillyPad on same level
+		int notOverlap1=0;						//Prevents overlapping of Logs on same level
 
+		if (choice <=2) {
+			//Spawns more than 1 Log in the same YPosition
+			for(int i=0;i<=logLoop;i++) {
+				SpawnedHazards.add(new Log(handler, notOverlap1, yPosition));
+				notOverlap1= notOverlap1+128;
+			}
+			YLilly=false;
 		}
 		else if(choice>=5){ 
-			randInt = 64 * rand.nextInt(3);
+			randInt = 576;
 			SpawnedHazards.add(new Turtle(handler, randInt, yPosition));
 			YLilly=false;
+
 		}
 		else {
 			if(YLilly) {
@@ -350,17 +349,18 @@ public class WorldManager {
 					YLilly=false;
 				}
 				else {
-					randInt = 64 * rand.nextInt(3);
+					randInt = 576;
 					SpawnedHazards.add(new Turtle(handler, randInt, yPosition));
 					YLilly=false;
 				}
 
 			}
 			else {
-				//Spawns more than 1 LillyPad in the same Y Level
-				for(int i=0;i<lillyloop;i++) {
-					randInt = 64 * rand.nextInt(9);
+				//Spawns more than 1 LillyPad in the same YPosition
+				for(int i=0;i<=lillyLoop;i++) {
+					randInt = 64 * rand.nextInt(9) + notOverlap;
 					SpawnedHazards.add(new LillyPad(handler, randInt, yPosition));
+					notOverlap= notOverlap + 64;
 				}
 				YLilly=true;
 			}
