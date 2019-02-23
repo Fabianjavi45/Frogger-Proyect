@@ -263,8 +263,8 @@ public class WorldManager {
 			if (SpawnedHazards.get(i).getY() > handler.getHeight()) {
 				SpawnedHazards.remove(i);
 			}
-			
-			
+
+
 		}
 	}
 
@@ -298,7 +298,7 @@ public class WorldManager {
 		if(randomArea instanceof GrassArea) {
 			randomArea = new GrassArea(handler, yPosition);
 			for(int i=0;i<treeloop;i++) {
-			SpawnedHazards.add(new Tree(handler,64 *rand.nextInt(9), yPosition));
+				SpawnedHazards.add(new Tree(handler,64 *rand.nextInt(9), yPosition));
 			}
 
 
@@ -322,35 +322,45 @@ public class WorldManager {
 		int randInt;
 		int choice = rand.nextInt(7);
 		int lillyLoop= rand.nextInt(8) + 1;		//Variable to spawn more than one LillyPad per YPosition
-		int logLoop= rand.nextInt(4) + 1;		
+		int logLoop= rand.nextInt(4) + 1;
+		int turtLoop= rand.nextInt(4)+1;
 		int turtOrLog= rand.nextInt(1);			//Variable to choose if to spawn Log or Turtle
-		int notOverlap=0;						//Prevents overlapping of LillyPad on same level
-		int notOverlap1=0;						//Prevents overlapping of Logs on same level
-
+		int notOverlap=0;						//Prevents overlapping of SpawnedHazards on same level
+		int xLevel=0;
+		
 		if (choice <=2) {
 			//Spawns more than 1 Log in the same YPosition
-			for(int i=0;i<=logLoop;i++) {
-				SpawnedHazards.add(new Log(handler, notOverlap1, yPosition));
-				notOverlap1= notOverlap1+128;
+			for(int i=0;i<logLoop;i++) {
+				SpawnedHazards.add(new Log(handler, notOverlap, yPosition));
+				notOverlap+=128;
 			}
 			YLilly=false;
 		}
 		else if(choice>=5){ 
-			randInt = 576;
-			SpawnedHazards.add(new Turtle(handler, randInt, yPosition));
-			YLilly=false;
+			for(int i=0;i<turtLoop;i++) {
+				randInt = 576 - notOverlap;
+				SpawnedHazards.add(new Turtle(handler, randInt, yPosition));
+				notOverlap+=80;
 
+			}
+			YLilly=false;
 		}
 		else {
 			if(YLilly) {
 				if(turtOrLog==1) {
-					randInt = 64 * rand.nextInt(4);
-					SpawnedHazards.add(new Log(handler, randInt, yPosition));
+					for(int i=0;i<logLoop;i++) {
+						SpawnedHazards.add(new Log(handler, notOverlap, yPosition));
+						notOverlap+=128;
+					}
 					YLilly=false;
 				}
 				else {
-					randInt = 576;
-					SpawnedHazards.add(new Turtle(handler, randInt, yPosition));
+					for(int i=0;i<turtLoop;i++) {
+						randInt = 576 - notOverlap;
+						SpawnedHazards.add(new Turtle(handler, randInt, yPosition));
+						notOverlap+=80;
+
+					}
 					YLilly=false;
 				}
 
@@ -358,9 +368,15 @@ public class WorldManager {
 			else {
 				//Spawns more than 1 LillyPad in the same YPosition
 				for(int i=0;i<=lillyLoop;i++) {
-					randInt = 64 * rand.nextInt(9) + notOverlap;
+					
+					randInt = 64 * rand.nextInt(10);
+					if(randInt==xLevel) {					//Prevents Overlapping of LillyPads
+						randInt = 64 * rand.nextInt(10);
+					}
+					else {
 					SpawnedHazards.add(new LillyPad(handler, randInt, yPosition));
-					notOverlap= notOverlap + 64;
+					xLevel=randInt;
+					}
 				}
 				YLilly=true;
 			}
