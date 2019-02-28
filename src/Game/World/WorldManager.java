@@ -109,16 +109,17 @@ public class WorldManager {
 
 		//grid range here
 		if(player.getX()-1<=0) {
-			player.setX(player.getX()+10);
+			player.setX(0);
 		}
 		if(player.getX()+1>=576) {
-			player.setX(player.getX()-10);
+			player.setX(player.getX()-64);
 		}
 		if(player.getY()-1<=10) {
 			player.setY(player.getY()+64);
 		}
 		if(player.getY()+1>=768) {      // this is added while the game over state is being created-here
-			player.setY(player.getY()-10);}
+			player.setY(player.getY()-64);
+		}
 
 
 		if(this.handler.getKeyManager().keyJustPressed(this.handler.getKeyManager().num[2])) {
@@ -186,7 +187,7 @@ public class WorldManager {
 	}
 
 	private void HazardMovement() {
-		int Push=10;
+		int Push=6;
 		for (int i = 0; i < SpawnedHazards.size(); i++) {
 
 			// Moves hazard down
@@ -288,7 +289,6 @@ public class WorldManager {
 
 		if(randomArea instanceof GrassArea) {
 			randomArea = new GrassArea(handler, yPosition);
-
 			SpawnedHazards.add(new Tree(handler,randInt, yPosition));
 
 

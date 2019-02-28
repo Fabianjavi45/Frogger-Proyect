@@ -20,7 +20,7 @@ public class Log extends StaticBase {
     @Override
     public void render(Graphics g) {
     	
-    	g.drawImage(Images.log, this.getX(), this.getY(), 128, 64, null);
+    	g.drawImage(Images.log, this.getX(), this.getY(), 128, 60, null);
     	log = new Rectangle(this.getX()+40, this.getY(), 50, 60);
     }
     
