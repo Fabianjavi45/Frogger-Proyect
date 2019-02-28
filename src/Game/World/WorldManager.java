@@ -115,31 +115,10 @@ public class WorldManager {
 			player.setX(player.getX()-10);
 		}
 		if(player.getY()-1<=10) {
-			player.setY(player.getY()+25);
+			player.setY(player.getY()+64);
 		}
 		if(player.getY()+1>=768) {      // this is added while the game over state is being created-here
 			player.setY(player.getY()-10);}
-
-
-
-
-
-
-
-
-		if(this.player.getY()> this.handler.getHeight()) {
-			movementSpeed=0;
-		}
-		if(this.player.getY()<= this.handler.getHeight()) {
-			movementSpeed=1;
-		}
-		if(this.player.getX()> this.handler.getWidth()) {
-			this.player.setX(this.player.getX()-40);
-		}
-		if(this.player.getX()<0) {
-			this.player.setX(this.player.getX()+20);
-		}
-
 
 
 		if(this.handler.getKeyManager().keyJustPressed(this.handler.getKeyManager().num[2])) {
@@ -207,7 +186,7 @@ public class WorldManager {
 	}
 
 	private void HazardMovement() {
-
+		int Push=10;
 		for (int i = 0; i < SpawnedHazards.size(); i++) {
 
 			// Moves hazard down
@@ -221,13 +200,13 @@ public class WorldManager {
 					String facing= player.getFacing();
 
 					switch(facing) {
-					case "UP": player.setY(player.getY()+15);
+					case "UP": player.setY(player.getY()+Push);//
 					break;
-					case "DOWN": player.setY(player.getY()-15);
+					case "DOWN": player.setY(player.getY()-Push);
 					break;
-					case "LEFT": player.setX(player.getX()+15);
+					case "LEFT": player.setX(player.getX()+Push);
 					break;
-					case "RIGHT": player.setX(player.getX()-15);
+					case "RIGHT": player.setX(player.getX()-Push);
 					break;
 					default: break;	
 					}
@@ -261,10 +240,22 @@ public class WorldManager {
 
 			// if hazard has passed the screen height, then remove this hazard.
 			if (SpawnedHazards.get(i).getY() > handler.getHeight()) {
+				/*if(SpawnedHazards.get(i) instanceof Turtle || SpawnedHazards.get(i) instanceof Log) {
+					SpawnedHazards.get(i).setX(0);
+				}
+				 */
 				SpawnedHazards.remove(i);
 			}
-
-
+			if(SpawnedHazards.get(i).getX() > handler.getWidth()) {
+				if(SpawnedHazards.get(i) instanceof Log) {
+					SpawnedHazards.get(i).setX(-128);
+				}
+			}
+			if(SpawnedHazards.get(i).getX() < 0	) {
+				if(SpawnedHazards.get(i) instanceof Turtle) {
+					SpawnedHazards.get(i).setX(handler.getWidth() + 64);
+				}
+			}
 		}
 	}
 
@@ -290,16 +281,16 @@ public class WorldManager {
 	 * It is also in charge of spawning hazards at a specific condition.
 	 */
 	private BaseArea randomArea(int yPosition) {
-		Random rand = new Random();
-		int treeloop= rand.nextInt(4)+1;			//Enables the spawn of multiple trees in the same yPosition
+		Random rand = new Random();				
+		int randInt=64 *rand.nextInt(9);
 		// From the AreasAvailable, get me any random one.
 		BaseArea randomArea = AreasAvailables.get(rand.nextInt(AreasAvailables.size())); 
 
 		if(randomArea instanceof GrassArea) {
 			randomArea = new GrassArea(handler, yPosition);
-			for(int i=0;i<treeloop;i++) {
-				SpawnedHazards.add(new Tree(handler,64 *rand.nextInt(9), yPosition));
-			}
+
+			SpawnedHazards.add(new Tree(handler,randInt, yPosition));
+
 
 
 		}
@@ -324,10 +315,10 @@ public class WorldManager {
 		int lillyLoop= rand.nextInt(8) + 1;		//Variable to spawn more than one LillyPad per YPosition
 		int logLoop= rand.nextInt(4) + 1;
 		int turtLoop= rand.nextInt(4)+1;
-		int turtOrLog= rand.nextInt(1);			//Variable to choose if to spawn Log or Turtle
+		int turtOrLog= rand.nextInt(1);			//Variable to choose if to spawn Log or Turtle instead of LillyPad
 		int notOverlap=0;						//Prevents overlapping of SpawnedHazards on same level
-		int xLevel=0;
-		
+		int xLevel=-1;
+
 		if (choice <=2) {
 			//Spawns more than 1 Log in the same YPosition
 			for(int i=0;i<logLoop;i++) {
@@ -338,7 +329,7 @@ public class WorldManager {
 		}
 		else if(choice>=5){ 
 			for(int i=0;i<turtLoop;i++) {
-				randInt = 576 - notOverlap;
+				randInt = handler.getWidth() - notOverlap;
 				SpawnedHazards.add(new Turtle(handler, randInt, yPosition));
 				notOverlap+=80;
 
@@ -356,7 +347,7 @@ public class WorldManager {
 				}
 				else {
 					for(int i=0;i<turtLoop;i++) {
-						randInt = 576 - notOverlap;
+						randInt = handler.getWidth() - notOverlap;
 						SpawnedHazards.add(new Turtle(handler, randInt, yPosition));
 						notOverlap+=80;
 
@@ -368,14 +359,16 @@ public class WorldManager {
 			else {
 				//Spawns more than 1 LillyPad in the same YPosition
 				for(int i=0;i<=lillyLoop;i++) {
-					
-					randInt = 64 * rand.nextInt(10);
+
+					randInt = 64 * rand.nextInt(9);
 					if(randInt==xLevel) {					//Prevents Overlapping of LillyPads
-						randInt = 64 * rand.nextInt(10);
+						randInt = 64 * rand.nextInt(9);
+						SpawnedHazards.add(new LillyPad(handler, randInt, yPosition));
+						xLevel=randInt;
 					}
 					else {
-					SpawnedHazards.add(new LillyPad(handler, randInt, yPosition));
-					xLevel=randInt;
+						SpawnedHazards.add(new LillyPad(handler, randInt, yPosition));
+						xLevel=randInt;
 					}
 				}
 				YLilly=true;
