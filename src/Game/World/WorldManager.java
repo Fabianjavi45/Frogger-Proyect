@@ -6,6 +6,7 @@ import Game.Entities.Static.Log;
 import Game.Entities.Static.StaticBase;
 import Game.Entities.Static.Tree;
 import Game.Entities.Static.Turtle;
+import Game.GameStates.State;
 import Main.Handler;
 import UI.UIManager;
 
@@ -118,7 +119,7 @@ public class WorldManager {
 			player.setY(player.getY()+64);
 		}
 		if(player.getY()+1>=768) {      // this is added while the game over state is being created-here
-			player.setY(player.getY()-64);
+			State.setState(handler.getGame().gameOverState);
 		}
 
 
@@ -137,6 +138,10 @@ public class WorldManager {
 		if(this.handler.getKeyManager().keyJustPressed(this.handler.getKeyManager().num[4]) && this.object2.isUIInstance) {
 			this.object2.scalarProduct(handler);
 		}
+		if(this.handler.getKeyManager().keyJustPressed(KeyEvent.VK_P)) {
+			State.setState(handler.getGame().pauseState);
+		}
+
 
 		if(this.reset) {
 			time = System.currentTimeMillis();
@@ -187,8 +192,14 @@ public class WorldManager {
 	}
 
 	private void HazardMovement() {
-		int Push=6;
+		int Push=8;
 		for (int i = 0; i < SpawnedHazards.size(); i++) {
+
+			
+
+
+
+
 
 			// Moves hazard down
 			SpawnedHazards.get(i).setY(SpawnedHazards.get(i).getY() + movementSpeed);
@@ -375,9 +386,10 @@ public class WorldManager {
 			}
 		}
 	}
+
+
+
+	public int getMovementSpeed(){
+		return this.movementSpeed;
+	}
 }
-
-
-
-
-

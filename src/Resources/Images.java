@@ -22,6 +22,7 @@ public class Images {
     public static BufferedImage[] butstart;
     public static BufferedImage title;
     public static BufferedImage Pause;
+    public static BufferedImage frog;
     public static BufferedImage[] Resume;
     public static BufferedImage[] BTitle;
     public static BufferedImage[] Options;
@@ -34,7 +35,8 @@ public class Images {
     public static BufferedImage[] Turtle;
     public static SpriteSheet WaterSheet;
     public static BufferedImage[] Water;
-
+    public static BufferedImage []deathTitle;
+    public static BufferedImage[] deathRetry;
 
     public static BufferedImage player;
     
@@ -46,8 +48,7 @@ public class Images {
     public static BufferedImage grass;
     public static BufferedImage tree;
     public static BufferedImage[] object;
-
-
+  
     public Images() {
 
         butstart = new BufferedImage[3];
@@ -58,13 +59,19 @@ public class Images {
         Turtle = new BufferedImage[20];
         Water = new BufferedImage[3];
         object = new BufferedImage[6];
-
+        deathTitle = new BufferedImage[2];
+        deathRetry = new BufferedImage[2];
+       
         try {
             playerSheet = new SpriteSheet(ImageIO.read(getClass().getResourceAsStream("/Sheets/gameSprites.png")));
             WaterSheet = new SpriteSheet(ImageIO.read(getClass().getResourceAsStream("/Sheets/water.png")));
-
+            deathTitle[0]=ImageIO.read(getClass().getResourceAsStream("/Sheets/deathTitle.png"));
+            deathRetry[0]=ImageIO.read(getClass().getResourceAsStream("/Sheets/deathRetry.png"));
+            deathTitle[1]=ImageIO.read(getClass().getResourceAsStream("/Sheets/deathTitle.png"));
+            deathRetry[1]=ImageIO.read(getClass().getResourceAsStream("/Sheets/deathRetry.png"));
             title = ImageIO.read(getClass().getResourceAsStream("/Sheets/Frogger2.png"));
             Pause = ImageIO.read(getClass().getResourceAsStream("/Buttons/Pause.png"));
+            frog = ImageIO.read(getClass().getResourceAsStream("/Sheets/deadfrog.png"));
             Resume[0] = ImageIO.read(getClass().getResourceAsStream("/Buttons/ResumeButton.png"));
             Resume[1] = ImageIO.read(getClass().getResourceAsStream("/Buttons/ResumeButton2.png"));
             BTitle[0] = ImageIO.read(getClass().getResourceAsStream("/Buttons/TitleButton.png"));
